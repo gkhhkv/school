@@ -12,6 +12,16 @@
 | 更新状态 | PUT | /api/orders/{orderNo}/status | 状态机校验 |
 | 取消订单 | PUT | /api/orders/{orderNo}/cancel | 仅待付款 / 恢复库存 |
 
+## 商品模块
+
+| API | 方法 | 路径 | 说明 |
+|-----|------|------|------|
+| 创建商品 | POST | /api/products | 参数校验 |
+| 分页查询 | GET | /api/products | 支持关键词搜索 |
+| 商品详情 | GET | /api/products/{id} | 按 ID 查询 |
+| 更新商品 | PUT | /api/products/{id} | 全字段更新 |
+| 删除商品 | DELETE | /api/products/{id} | 物理删除 |
+
 ## 数据库表
 
 | 表名 | 说明 | 状态 |
