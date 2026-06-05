@@ -29,6 +29,8 @@
 | 促销标签 | PromoLabel.vue | 接收促销类型 prop，展示对应颜色标签；无促销时隐藏 |
 | 倒计时 | Countdown.vue | 接收 endTime prop，每秒更新天/时/分/秒；到期 emit expired |
 | 商品详情 | ProductDetail.vue | 父组件，集成促销标签和倒计时，支持动态切换传值验证 |
+| Axios 请求封装 | request.js | Axios 实例，baseURL + 请求/响应拦截器，解包 Result 格式 |
+| 商品列表 | ProductList.vue | 商品卡片分页列表 + 分类筛选按钮，Vite 代理转发后端 API |
 
 ## 数据库表
 

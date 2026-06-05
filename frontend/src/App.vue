@@ -1,7 +1,7 @@
 <script setup>
-import ProductDetail from './components/ProductDetail.vue'
+import ProductList from './components/ProductList.vue'
 </script>
 
 <template>
-  <ProductDetail />
+  <ProductList />
 </template>
