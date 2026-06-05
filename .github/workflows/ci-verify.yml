@@ -23,7 +23,7 @@ jobs:
         run: java -version
 
       - name: Compile and test
-        run: mvn clean package -B
+        run: cd backend && mvn clean package -B
 
       - name: Upload test reports
         if: failure()
