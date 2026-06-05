@@ -1,6 +1,6 @@
 # 功能资产总表
 
-> 最后更新: 2026-05-30
+> 最后更新: 2026-06-05
 
 ## 订单模块
 
@@ -21,6 +21,14 @@
 | 商品详情 | GET | /api/products/{id} | 按 ID 查询 |
 | 更新商品 | PUT | /api/products/{id} | 全字段更新 |
 | 删除商品 | DELETE | /api/products/{id} | 物理删除 |
+
+## 前端组件
+
+| 组件 | 文件 | 说明 |
+|------|------|------|
+| 促销标签 | PromoLabel.vue | 接收促销类型 prop，展示对应颜色标签；无促销时隐藏 |
+| 倒计时 | Countdown.vue | 接收 endTime prop，每秒更新天/时/分/秒；到期 emit expired |
+| 商品详情 | ProductDetail.vue | 父组件，集成促销标签和倒计时，支持动态切换传值验证 |
 
 ## 数据库表
 
