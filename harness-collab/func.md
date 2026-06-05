@@ -30,7 +30,12 @@
 | 倒计时 | Countdown.vue | 接收 endTime prop，每秒更新天/时/分/秒；到期 emit expired |
 | 商品详情 | ProductDetail.vue | 父组件，集成促销标签和倒计时，支持动态切换传值验证 |
 | Axios 请求封装 | request.js | Axios 实例，baseURL + 请求/响应拦截器，解包 Result 格式 |
-| 商品列表 | ProductList.vue | 商品卡片分页列表 + 分类筛选按钮，Vite 代理转发后端 API |
+| 商品列表 | ProductList.vue | 商品卡片分页列表 + 分类筛选 + 加入购物车按钮 |
+| 路由配置 | router/index.js | Hash 模式：首页/购物车/下单成功/404 |
+| 购物车 Store | stores/cart.js | Pinia 状态：增/删/改数量/清空/总价 |
+| 购物车页 | ShoppingCart.vue | 购物车列表 + 数量调整 + 提交订单 |
+| 下单成功 | OrderSuccess.vue | 下单成功提示 + 返回首页 |
+| 404 页面 | NotFound.vue | 页面不存在提示 + 返回首页 |
 
 ## 数据库表
 

@@ -26,6 +26,7 @@
           <div class="card-body">
             <span class="card-name">{{ p.name }}</span>
             <span class="card-price">¥{{ p.price }}</span>
+            <button class="card-add-btn" @click="cart.addToCart(p)">加入购物车</button>
           </div>
         </div>
       </div>
@@ -43,6 +44,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import request from '../utils/request.js'
+import { useCartStore } from '../stores/cart.js'
+
+const cart = useCartStore()
 
 const categories = [
   { key: '', label: '全部' },
@@ -186,6 +190,22 @@ onMounted(() => {
   font-size: 18px;
   color: #ff4444;
   font-weight: 700;
+}
+.card-add-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 6px 0;
+  border: 1px solid #2196f3;
+  border-radius: 4px;
+  background: #fff;
+  color: #2196f3;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+.card-add-btn:hover {
+  background: #2196f3;
+  color: #fff;
 }
 .pagination {
   display: flex;
