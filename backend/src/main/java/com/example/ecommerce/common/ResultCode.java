@@ -13,7 +13,9 @@ public enum ResultCode {
     INSUFFICIENT_STOCK(2001, "库存不足"),
     ORDER_NOT_FOUND(2002, "订单不存在"),
     INVALID_STATUS_TRANSITION(2003, "无效的状态变更"),
-    ORDER_CANNOT_CANCEL(2004, "该订单无法取消");
+    ORDER_CANNOT_CANCEL(2004, "该订单无法取消"),
+    UNAUTHORIZED(401, "未登录或登录已过期"),
+    LOGIN_FAILED(2005, "用户名或密码错误");
 
     private final int code;
     private final String message;

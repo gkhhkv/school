@@ -7,6 +7,10 @@ const request = axios.create({
 
 request.interceptors.request.use(
   (config) => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      config.headers['Authorization'] = 'Bearer ' + token
+    }
     config.headers['Content-Type'] = 'application/json'
     return config
   },
@@ -22,6 +26,12 @@ request.interceptors.response.use(
     return Promise.reject(new Error(message || '请求失败'))
   },
   (error) => {
+    if (error.response && error.response.status === 401) {
+      localStorage.removeItem('token')
+      localStorage.removeItem('userInfo')
+      window.location.href = '/#/login'
+      return Promise.reject(new Error('请先登录'))
+    }
     const msg = error.response?.data?.message || error.message || '网络错误'
     return Promise.reject(new Error(msg))
   },

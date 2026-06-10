@@ -24,9 +24,10 @@ public interface OrderService {
      * @param pageNum  页码
      * @param pageSize 每页条数
      * @param status   订单状态（可选）
+     * @param userId   用户ID
      * @return 分页结果
      */
-    IPage<Order> queryOrders(int pageNum, int pageSize, OrderStatus status);
+    IPage<Order> queryOrders(int pageNum, int pageSize, OrderStatus status, Long userId);
 
     /**
      * 查询订单详情（含商品明细）。

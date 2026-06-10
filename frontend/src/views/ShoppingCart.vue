@@ -18,27 +18,76 @@
         </div>
       </div>
 
+      <div class="shipping-form">
+        <h3>收货信息</h3>
+        <label>
+          收货人：
+          <input v-model="contactName" type="text" placeholder="请输入姓名" />
+        </label>
+        <label>
+          手机号：
+          <input v-model="contactPhone" type="text" placeholder="请输入手机号" />
+        </label>
+        <label>
+          地址：
+          <input v-model="shippingAddress" type="text" placeholder="请输入地址" />
+        </label>
+      </div>
+
       <div class="cart-footer">
         <span>共 {{ cart.totalCount }} 件 | 合计 ¥{{ cart.totalPrice.toFixed(2) }}</span>
         <div class="footer-actions">
           <button class="btn-clear" @click="cart.clearCart()">清空购物车</button>
-          <button class="btn-submit" @click="submitOrder">提交订单</button>
+          <button class="btn-submit" :disabled="submitting" @click="submitOrder">
+            {{ submitting ? '提交中...' : '提交订单' }}
+          </button>
         </div>
       </div>
+      <div v-if="errorMsg" class="error-msg">{{ errorMsg }}</div>
     </template>
   </div>
 </template>
 
 <script setup>
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart.js'
+import request from '../utils/request.js'
 
 const cart = useCartStore()
 const router = useRouter()
 
-function submitOrder() {
-  cart.clearCart()
-  router.push('/order-success')
+const contactName = ref('')
+const contactPhone = ref('')
+const shippingAddress = ref('')
+const submitting = ref(false)
+const errorMsg = ref('')
+
+async function submitOrder() {
+  if (!contactName.value || !contactPhone.value || !shippingAddress.value) {
+    errorMsg.value = '请填写完整的收货信息'
+    return
+  }
+  errorMsg.value = ''
+  submitting.value = true
+  try {
+    const items = cart.items.map((i) => ({
+      productId: i.product.productId,
+      quantity: i.quantity,
+    }))
+    const order = await request.post('/orders', {
+      shippingAddress: shippingAddress.value,
+      contactName: contactName.value,
+      contactPhone: contactPhone.value,
+      items,
+    })
+    cart.clearCart()
+    router.push({ path: '/order-success', query: { orderNo: order.orderNo } })
+  } catch (e) {
+    errorMsg.value = e.message || '提交订单失败'
+  } finally {
+    submitting.value = false
+  }
 }
 </script>
 
@@ -57,6 +106,40 @@ h2 {
   padding: 80px 0;
   color: #999;
   font-size: 16px;
+}
+.shipping-form {
+  margin-top: 20px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  font-size: 14px;
+}
+.shipping-form h3 {
+  margin: 0;
+  font-size: 16px;
+}
+.shipping-form label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.shipping-form input {
+  flex: 1;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+.error-msg {
+  margin-top: 12px;
+  padding: 10px 14px;
+  background: #fff3f3;
+  color: #d32f2f;
+  border-radius: 4px;
+  font-size: 14px;
 }
 .cart-list {
   border-top: 2px solid #333;
@@ -144,7 +227,11 @@ h2 {
   cursor: pointer;
   font-weight: 600;
 }
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
   background: #d32f2f;
+}
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 </style>

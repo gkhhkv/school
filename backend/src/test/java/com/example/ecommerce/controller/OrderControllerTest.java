@@ -80,19 +80,8 @@ class OrderControllerTest {
     }
 
     @Test
-    void should_return400_when_createRequestMissingUserId() throws Exception {
-        String body = "{\"shippingAddress\":\"addr\",\"contactName\":\"name\",\"contactPhone\":\"138\",\"items\":[{\"productId\":1,\"quantity\":1}]}";
-
-        mockMvc.perform(post("/api/orders")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(body))
-                .andExpect(status().isBadRequest());
-    }
-
-    @Test
     void should_return400_when_createRequestEmptyItems() throws Exception {
         OrderCreateRequest request = new OrderCreateRequest();
-        request.setUserId(1L);
         request.setShippingAddress("地址");
         request.setContactName("联系人");
         request.setContactPhone("13800138000");
@@ -128,7 +117,7 @@ class OrderControllerTest {
     @Test
     void should_returnPaginatedOrders_when_queryWithoutFilters() throws Exception {
         Page<Order> page = new Page<>(1, 10);
-        when(orderService.queryOrders(anyInt(), anyInt(), any())).thenReturn(page);
+        when(orderService.queryOrders(anyInt(), anyInt(), any(), any())).thenReturn(page);
 
         mockMvc.perform(get("/api/orders")
                         .param("pageNum", "1")
@@ -140,7 +129,7 @@ class OrderControllerTest {
     @Test
     void should_returnOrdersFilteredByStatus_when_queryWithStatus() throws Exception {
         Page<Order> page = new Page<>(1, 10);
-        when(orderService.queryOrders(1, 10, OrderStatus.PAID)).thenReturn(page);
+        when(orderService.queryOrders(anyInt(), anyInt(), any(), any())).thenReturn(page);
 
         mockMvc.perform(get("/api/orders")
                         .param("pageNum", "1")
@@ -149,7 +138,7 @@ class OrderControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
 
-        verify(orderService).queryOrders(1, 10, OrderStatus.PAID);
+        verify(orderService).queryOrders(1, 10, OrderStatus.PAID, null);
     }
 
     // ========== GET /api/orders/{orderNo} ==========

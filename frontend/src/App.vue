@@ -1,7 +1,30 @@
 <script setup>
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { useCartStore } from './stores/cart.js'
 
 const cart = useCartStore()
+const router = useRouter()
+const userInfo = ref(null)
+
+function loadUser() {
+  const raw = localStorage.getItem('userInfo')
+  if (raw) {
+    try { userInfo.value = JSON.parse(raw) } catch { userInfo.value = null }
+  }
+}
+
+function logout() {
+  localStorage.removeItem('token')
+  localStorage.removeItem('userInfo')
+  userInfo.value = null
+  router.push('/')
+}
+
+onMounted(() => {
+  loadUser()
+  window.addEventListener('storage', loadUser)
+})
 </script>
 
 <template>
@@ -9,9 +32,15 @@ const cart = useCartStore()
     <router-link to="/" class="nav-logo">电商购物平台</router-link>
     <nav>
       <router-link to="/">首页</router-link>
+      <router-link to="/orders">我的订单</router-link>
       <router-link to="/cart">
         购物车<span v-if="cart.totalCount > 0" class="badge">{{ cart.totalCount }}</span>
       </router-link>
+      <template v-if="userInfo">
+        <span class="user-name">{{ userInfo.username }}</span>
+        <a href="#" class="logout-link" @click.prevent="logout">退出</a>
+      </template>
+      <router-link v-else to="/login">登录</router-link>
     </nav>
   </header>
   <main>
@@ -63,6 +92,16 @@ nav a.router-link-active {
   color: #fff;
   font-size: 11px;
   vertical-align: top;
+}
+.user-name {
+  color: #333;
+  font-size: 14px;
+}
+.logout-link {
+  color: #999 !important;
+}
+.logout-link:hover {
+  color: #ff4444 !important;
 }
 main {
   min-height: calc(100vh - 56px);

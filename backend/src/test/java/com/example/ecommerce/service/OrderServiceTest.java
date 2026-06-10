@@ -54,7 +54,7 @@ class OrderServiceTest {
         Product product = TestDataFactory.createTestProduct(1L, "商品1", 99.00, 100);
         OrderCreateRequest request = TestDataFactory.createOrderCreateRequest(1L, 1L, 2);
 
-        when(productMapper.selectBatchIds(anyList())).thenReturn(List.of(product));
+        when(productMapper.selectBatchIdsForUpdate(anyList())).thenReturn(List.of(product));
         when(productMapper.updateById(any(Product.class))).thenReturn(1);
         when(orderMapper.insert(any(Order.class))).thenReturn(1);
         when(orderItemMapper.insert(any(OrderItem.class))).thenReturn(1);
@@ -75,7 +75,7 @@ class OrderServiceTest {
     @Test
     void should_throwException_when_productNotFound() {
         OrderCreateRequest request = TestDataFactory.createOrderCreateRequest(1L, 999L, 1);
-        when(productMapper.selectBatchIds(anyList())).thenReturn(List.of());
+        when(productMapper.selectBatchIdsForUpdate(anyList())).thenReturn(List.of());
 
         BusinessException ex = assertThrows(BusinessException.class, () -> orderService.createOrder(request));
         assertEquals(ResultCode.NOT_FOUND.getCode(), ex.getCode());
@@ -86,7 +86,7 @@ class OrderServiceTest {
         Product product = TestDataFactory.createTestProduct(1L, "商品1", 99.00, 0);
         OrderCreateRequest request = TestDataFactory.createOrderCreateRequest(1L, 1L, 1);
 
-        when(productMapper.selectBatchIds(anyList())).thenReturn(List.of(product));
+        when(productMapper.selectBatchIdsForUpdate(anyList())).thenReturn(List.of(product));
 
         BusinessException ex = assertThrows(BusinessException.class, () -> orderService.createOrder(request));
         assertEquals(ResultCode.INSUFFICIENT_STOCK.getCode(), ex.getCode());
@@ -97,7 +97,7 @@ class OrderServiceTest {
         Product product = TestDataFactory.createTestProduct(1L, "商品1", 99.00, 3);
         OrderCreateRequest request = TestDataFactory.createOrderCreateRequest(1L, 1L, 5);
 
-        when(productMapper.selectBatchIds(anyList())).thenReturn(List.of(product));
+        when(productMapper.selectBatchIdsForUpdate(anyList())).thenReturn(List.of(product));
 
         BusinessException ex = assertThrows(BusinessException.class, () -> orderService.createOrder(request));
         assertEquals(ResultCode.INSUFFICIENT_STOCK.getCode(), ex.getCode());
@@ -117,7 +117,7 @@ class OrderServiceTest {
                 TestDataFactory.createOrderItemRequest(2L, 3)
         ));
 
-        when(productMapper.selectBatchIds(anyList())).thenReturn(List.of(p1, p2));
+        when(productMapper.selectBatchIdsForUpdate(anyList())).thenReturn(List.of(p1, p2));
         when(productMapper.updateById(any(Product.class))).thenReturn(1);
         when(orderMapper.insert(any(Order.class))).thenReturn(1);
         when(orderItemMapper.insert(any(OrderItem.class))).thenReturn(1);
@@ -133,7 +133,7 @@ class OrderServiceTest {
     void should_returnPaginatedOrders_when_queryWithoutStatus() {
         when(orderMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class))).thenReturn(new Page<>(1, 10));
 
-        IPage<Order> result = orderService.queryOrders(1, 10, null);
+        IPage<Order> result = orderService.queryOrders(1, 10, null, 1L);
 
         assertNotNull(result);
         verify(orderMapper).selectPage(any(Page.class), any(LambdaQueryWrapper.class));
@@ -143,7 +143,7 @@ class OrderServiceTest {
     void should_filterOrdersByStatus_when_statusProvided() {
         when(orderMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class))).thenReturn(new Page<>(1, 5));
 
-        orderService.queryOrders(1, 5, OrderStatus.PAID);
+        orderService.queryOrders(1, 5, OrderStatus.PAID, 1L);
 
         verify(orderMapper).selectPage(any(Page.class), any(LambdaQueryWrapper.class));
     }
@@ -154,18 +154,20 @@ class OrderServiceTest {
     void should_returnOrderWithItems_when_orderExists() {
         String orderNo = "ORD20260530120000000001";
         Order order = TestDataFactory.createTestOrder(1L, orderNo, 1L, OrderStatus.PENDING_PAYMENT);
-        List<OrderItem> items = List.of(
-                TestDataFactory.createTestOrderItem(1L, 1L, 1L, 2, BigDecimal.valueOf(99.00))
-        );
+        OrderItem item = TestDataFactory.createTestOrderItem(1L, 1L, 1L, 2, BigDecimal.valueOf(99.00));
+        List<OrderItem> items = List.of(item);
+        Product product = TestDataFactory.createTestProduct(1L, "商品1", 99.00, 50);
 
         when(orderMapper.selectByOrderNo(orderNo)).thenReturn(order);
         when(orderItemMapper.selectByOrderId(1L)).thenReturn(items);
+        when(productMapper.selectBatchIds(anyList())).thenReturn(List.of(product));
 
         Order result = orderService.getOrderDetail(orderNo);
 
         assertNotNull(result);
         assertNotNull(result.getItems());
         assertEquals(1, result.getItems().size());
+        assertEquals("商品1", result.getItems().get(0).getProductName());
     }
 
     @Test

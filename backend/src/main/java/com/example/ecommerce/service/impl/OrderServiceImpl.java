@@ -54,7 +54,7 @@ public class OrderServiceImpl implements OrderService {
                 .distinct()
                 .toList();
 
-        List<Product> products = productMapper.selectBatchIds(productIds);
+        List<Product> products = productMapper.selectBatchIdsForUpdate(productIds);
         if (products.size() != productIds.size()) {
             throw new BusinessException(ResultCode.NOT_FOUND.getCode(), "部分商品不存在");
         }
@@ -75,6 +75,7 @@ public class OrderServiceImpl implements OrderService {
 
             OrderItem item = new OrderItem();
             item.setProductId(itemReq.getProductId());
+            item.setProductName(product.getName());
             item.setQuantity(itemReq.getQuantity());
             item.setUnitPrice(unitPrice);
             item.setSubtotal(subtotal);
@@ -106,9 +107,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public IPage<Order> queryOrders(int pageNum, int pageSize, OrderStatus status) {
+    public IPage<Order> queryOrders(int pageNum, int pageSize, OrderStatus status, Long userId) {
         Page<Order> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Order> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(Order::getUserId, userId);
         if (status != null) {
             wrapper.eq(Order::getStatus, status);
         }
@@ -123,6 +125,12 @@ public class OrderServiceImpl implements OrderService {
             throw new BusinessException(ResultCode.ORDER_NOT_FOUND);
         }
         List<OrderItem> items = orderItemMapper.selectByOrderId(order.getOrderId());
+
+        List<Long> productIds = items.stream().map(OrderItem::getProductId).distinct().toList();
+        Map<Long, String> nameMap = productMapper.selectBatchIds(productIds).stream()
+                .collect(Collectors.toMap(Product::getProductId, Product::getName));
+        items.forEach(i -> i.setProductName(nameMap.getOrDefault(i.getProductId(), "未知商品")));
+
         order.setItems(items);
         return order;
     }

@@ -9,6 +9,7 @@ import com.example.ecommerce.dto.OrderStatusUpdateRequest;
 import com.example.ecommerce.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,11 +36,15 @@ public class OrderController {
      * 创建订单。
      *
      * @param request 订单创建请求
+     * @param httpReq HTTP 请求（获取已认证用户ID）
      * @return 创建的订单
      */
     @PostMapping
     @Operation(summary = "创建订单")
-    public Result<Order> createOrder(@Valid @RequestBody OrderCreateRequest request) {
+    public Result<Order> createOrder(@Valid @RequestBody OrderCreateRequest request,
+                                     HttpServletRequest httpReq) {
+        Long userId = (Long) httpReq.getAttribute("userId");
+        request.setUserId(userId);
         Order order = orderService.createOrder(request);
         return Result.success(order);
     }
@@ -50,6 +55,7 @@ public class OrderController {
      * @param pageNum  页码
      * @param pageSize 每页条数
      * @param status   订单状态（可选）
+     * @param httpReq  HTTP 请求（获取已认证用户ID）
      * @return 分页结果
      */
     @GetMapping
@@ -57,8 +63,10 @@ public class OrderController {
     public Result<IPage<Order>> queryOrders(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize,
-            @RequestParam(required = false) OrderStatus status) {
-        IPage<Order> page = orderService.queryOrders(pageNum, pageSize, status);
+            @RequestParam(required = false) OrderStatus status,
+            HttpServletRequest httpReq) {
+        Long userId = (Long) httpReq.getAttribute("userId");
+        IPage<Order> page = orderService.queryOrders(pageNum, pageSize, status, userId);
         return Result.success(page);
     }
 
