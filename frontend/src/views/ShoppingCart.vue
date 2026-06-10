@@ -49,12 +49,14 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useCartStore } from '../stores/cart.js'
+import { useAuthStore } from '../stores/auth.js'
 import request from '../utils/request.js'
 
 const cart = useCartStore()
+const auth = useAuthStore()
 const router = useRouter()
 
 const contactName = ref('')
@@ -62,6 +64,18 @@ const contactPhone = ref('')
 const shippingAddress = ref('')
 const submitting = ref(false)
 const errorMsg = ref('')
+
+onMounted(async () => {
+  if (!auth.userInfo) return
+  try {
+    const profile = await request.get('/auth/profile')
+    if (profile.username) contactName.value = profile.username
+    if (profile.phone) contactPhone.value = profile.phone
+    if (profile.address) shippingAddress.value = profile.address
+  } catch {
+    // 未登录或无 profile 数据则保持空白
+  }
+})
 
 async function submitOrder() {
   if (!contactName.value || !contactPhone.value || !shippingAddress.value) {

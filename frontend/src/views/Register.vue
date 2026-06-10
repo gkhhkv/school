@@ -1,24 +1,32 @@
 <template>
-  <div class="login-page">
-    <div class="login-card">
-      <h2>用户登录</h2>
-      <form @submit.prevent="doLogin">
+  <div class="register-page">
+    <div class="register-card">
+      <h2>用户注册</h2>
+      <form @submit.prevent="doRegister">
         <label>
           用户名
-          <input v-model="username" type="text" placeholder="请输入用户名" autocomplete="username" />
+          <input v-model="username" type="text" placeholder="2-50位字符" autocomplete="username" />
         </label>
         <label>
           密码
-          <input v-model="password" type="password" placeholder="请输入密码" autocomplete="current-password" />
+          <input v-model="password" type="password" placeholder="4位及以上" autocomplete="new-password" />
+        </label>
+        <label>
+          手机号
+          <input v-model="phone" type="text" placeholder="选填" autocomplete="tel" />
+        </label>
+        <label>
+          收货地址
+          <input v-model="address" type="text" placeholder="选填" autocomplete="street-address" />
         </label>
         <div v-if="errorMsg" class="error-msg">{{ errorMsg }}</div>
-        <button type="submit" :disabled="submitting" class="btn-login">
-          {{ submitting ? '登录中...' : '登录' }}
+        <button type="submit" :disabled="submitting" class="btn-register">
+          {{ submitting ? '注册中...' : '注册' }}
         </button>
       </form>
       <p class="hint">
-        还没有账号？
-        <router-link to="/register">立即注册</router-link>
+        已有账号？
+        <router-link to="/login">去登录</router-link>
       </p>
     </div>
   </div>
@@ -35,25 +43,37 @@ const auth = useAuthStore()
 
 const username = ref('')
 const password = ref('')
+const phone = ref('')
+const address = ref('')
 const submitting = ref(false)
 const errorMsg = ref('')
 
-async function doLogin() {
+async function doRegister() {
   if (!username.value || !password.value) {
-    errorMsg.value = '请输入用户名和密码'
+    errorMsg.value = '请填写用户名和密码'
+    return
+  }
+  if (username.value.length < 2 || username.value.length > 50) {
+    errorMsg.value = '用户名长度需在2-50位之间'
+    return
+  }
+  if (password.value.length < 4) {
+    errorMsg.value = '密码长度不能少于4位'
     return
   }
   errorMsg.value = ''
   submitting.value = true
   try {
-    const data = await request.post('/auth/login', {
+    const data = await request.post('/auth/register', {
       username: username.value,
       password: password.value,
+      phone: phone.value || undefined,
+      address: address.value || undefined,
     })
     auth.login(data)
     router.push('/')
   } catch (e) {
-    errorMsg.value = e.message || '登录失败'
+    errorMsg.value = e.message || '注册失败'
   } finally {
     submitting.value = false
   }
@@ -61,13 +81,13 @@ async function doLogin() {
 </script>
 
 <style scoped>
-.login-page {
+.register-page {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 60vh;
 }
-.login-card {
+.register-card {
   width: 360px;
   padding: 32px;
   background: #fff;
@@ -108,21 +128,21 @@ label input:focus {
   border-radius: 4px;
   font-size: 13px;
 }
-.btn-login {
+.btn-register {
   width: 100%;
   padding: 12px;
   border: none;
   border-radius: 6px;
-  background: #2196f3;
+  background: #4caf50;
   color: #fff;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
 }
-.btn-login:hover:not(:disabled) {
-  background: #1976d2;
+.btn-register:hover:not(:disabled) {
+  background: #388e3c;
 }
-.btn-login:disabled {
+.btn-register:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }

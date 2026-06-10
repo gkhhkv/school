@@ -15,7 +15,8 @@ public enum ResultCode {
     INVALID_STATUS_TRANSITION(2003, "无效的状态变更"),
     ORDER_CANNOT_CANCEL(2004, "该订单无法取消"),
     UNAUTHORIZED(401, "未登录或登录已过期"),
-    LOGIN_FAILED(2005, "用户名或密码错误");
+    LOGIN_FAILED(2005, "用户名或密码错误"),
+    USERNAME_EXISTS(2006, "用户名已存在");
 
     private final int code;
     private final String message;

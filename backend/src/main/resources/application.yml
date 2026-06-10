@@ -6,9 +6,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   sql:
     init:
-      mode: always
-      schema-locations: classpath:db/schema.sql
-      data-locations: classpath:db/data-mysql.sql
+      mode: never
 
 mybatis-plus:
   configuration:

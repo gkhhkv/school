@@ -6,6 +6,8 @@ import OrderSuccess from '../views/OrderSuccess.vue'
 import OrderList from '../views/OrderList.vue'
 import OrderDetail from '../views/OrderDetail.vue'
 import Login from '../views/Login.vue'
+import Register from '../views/Register.vue'
+import Profile from '../views/Profile.vue'
 import NotFound from '../views/NotFound.vue'
 
 const routes = [
@@ -16,6 +18,8 @@ const routes = [
   { path: '/order/:orderNo', name: 'orderDetail', component: OrderDetail },
   { path: '/order-success', name: 'orderSuccess', component: OrderSuccess },
   { path: '/login', name: 'login', component: Login },
+  { path: '/register', name: 'register', component: Register },
+  { path: '/profile', name: 'profile', component: Profile },
   { path: '/:pathMatch(.*)*', name: 'notFound', component: NotFound },
 ]
 

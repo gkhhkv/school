@@ -89,4 +89,34 @@ class AuthControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(ResultCode.LOGIN_FAILED.getCode()));
     }
+
+    @Test
+    void should_returnToken_when_registerSuccessfully() throws Exception {
+        String json = """
+                {"username":"newuser","password":"pass1234"}""";
+        when(userService.register(any())).thenReturn(
+                Map.of("token", "new-jwt-token", "userId", 2L, "username", "newuser"));
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(200))
+                .andExpect(jsonPath("$.data.token").value("new-jwt-token"))
+                .andExpect(jsonPath("$.data.username").value("newuser"));
+    }
+
+    @Test
+    void should_returnUsernameExists_when_duplicateUsername() throws Exception {
+        String json = """
+                {"username":"existing","password":"pass1234"}""";
+        when(userService.register(any())).thenThrow(
+                new BusinessException(ResultCode.USERNAME_EXISTS));
+
+        mockMvc.perform(post("/api/auth/register")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.code").value(ResultCode.USERNAME_EXISTS.getCode()));
+    }
 }
