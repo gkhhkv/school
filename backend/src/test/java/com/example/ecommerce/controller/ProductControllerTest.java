@@ -57,7 +57,7 @@ class ProductControllerTest {
         when(productService.createProduct(any())).thenReturn(product);
 
         String body = """
-                {"name":"新商品","price":99.00,"stock":100,"image":"/img/p1.jpg"}""";
+                {"name":"新商品","category":"数码","price":99.00,"stock":100,"image":"/img/p1.jpg"}""";
 
         mockMvc.perform(post("/api/products").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk())
@@ -81,7 +81,7 @@ class ProductControllerTest {
 
     @Test
     void should_returnPaginatedProducts_when_query() throws Exception {
-        when(productService.queryProducts(anyInt(), anyInt(), any())).thenReturn(new Page<>(1, 10));
+        when(productService.queryProducts(anyInt(), anyInt(), any(), any())).thenReturn(new Page<>(1, 10));
         mockMvc.perform(get("/api/products"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.code").value(200));
@@ -113,7 +113,7 @@ class ProductControllerTest {
         when(productService.updateProduct(anyLong(), any())).thenReturn(product);
 
         String body = """
-                {"name":"更新后","price":199.00,"stock":200,"image":"/img/p1.jpg"}""";
+                {"name":"更新后","category":"服装","price":199.00,"stock":200,"image":"/img/p1.jpg"}""";
 
         mockMvc.perform(put("/api/products/1").contentType(MediaType.APPLICATION_JSON).content(body))
                 .andExpect(status().isOk())

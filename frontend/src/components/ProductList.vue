@@ -6,11 +6,21 @@
       <button
         v-for="cat in categories"
         :key="cat.key"
-        :class="['cat-btn', { active: keyword === cat.key }]"
+        :class="['cat-btn', { active: category === cat.key }]"
         @click="changeCategory(cat.key)"
       >
         {{ cat.label }}
       </button>
+      <div class="search-box">
+        <input
+          v-model="keyword"
+          type="text"
+          placeholder="搜索商品名称..."
+          @keyup.enter="doSearch"
+        />
+        <button class="search-btn" @click="doSearch">搜索</button>
+        <button v-if="keyword" class="clear-btn" @click="clearSearch">清除</button>
+      </div>
     </div>
 
     <div v-if="loading" class="status-msg">加载中...</div>
@@ -19,13 +29,20 @@
       <div v-if="products.length === 0" class="status-msg">暂无商品</div>
       <div v-else class="product-grid">
         <div v-for="p in products" :key="p.productId" class="product-card">
-          <div class="card-img">
-            <img v-if="p.image" :src="p.image" :alt="p.name" />
-            <div v-else class="img-placeholder">暂无图片</div>
-          </div>
-          <div class="card-body">
-            <span class="card-name">{{ p.name }}</span>
-            <span class="card-price">¥{{ p.price }}</span>
+          <router-link :to="`/product/${p.productId}`" class="card-link">
+            <div class="card-img">
+              <img v-if="p.image" :src="p.image" :alt="p.name" />
+              <div v-else class="img-placeholder">暂无图片</div>
+            </div>
+            <div class="card-body">
+              <span class="card-name">{{ p.name }}</span>
+              <div class="card-tags">
+                <PromoLabel :type="p.promoType || ''" />
+              </div>
+              <span class="card-price">¥{{ p.price }}</span>
+            </div>
+          </router-link>
+          <div class="card-footer">
             <button class="card-add-btn" @click="cart.addToCart(p)">加入购物车</button>
           </div>
         </div>
@@ -45,6 +62,7 @@
 import { ref, computed, onMounted } from 'vue'
 import request from '../utils/request.js'
 import { useCartStore } from '../stores/cart.js'
+import PromoLabel from './PromoLabel.vue'
 
 const cart = useCartStore()
 
@@ -62,6 +80,7 @@ const error = ref('')
 const pageNum = ref(1)
 const pageSize = ref(8)
 const total = ref(0)
+const category = ref('')
 const keyword = ref('')
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / pageSize.value)))
@@ -71,6 +90,7 @@ async function fetchProducts() {
   error.value = ''
   try {
     const params = { pageNum: pageNum.value, pageSize: pageSize.value }
+    if (category.value) params.category = category.value
     if (keyword.value) params.keyword = keyword.value
     const res = await request.get('/products', { params })
     products.value = res.records || []
@@ -89,8 +109,19 @@ function changePage(n) {
   fetchProducts()
 }
 
-function changeCategory(kw) {
-  keyword.value = kw
+function changeCategory(cat) {
+  category.value = cat
+  pageNum.value = 1
+  fetchProducts()
+}
+
+function doSearch() {
+  pageNum.value = 1
+  fetchProducts()
+}
+
+function clearSearch() {
+  keyword.value = ''
   pageNum.value = 1
   fetchProducts()
 }
@@ -134,6 +165,48 @@ onMounted(() => {
   border-color: #2196f3;
   color: #2196f3;
 }
+.search-box {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+.search-box input {
+  width: 180px;
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  outline: none;
+}
+.search-box input:focus {
+  border-color: #2196f3;
+}
+.search-btn {
+  padding: 6px 14px;
+  border: 1px solid #2196f3;
+  border-radius: 4px;
+  background: #2196f3;
+  color: #fff;
+  cursor: pointer;
+  font-size: 13px;
+}
+.search-btn:hover {
+  background: #1976d2;
+}
+.clear-btn {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  background: #fff;
+  color: #999;
+  cursor: pointer;
+  font-size: 13px;
+}
+.clear-btn:hover {
+  border-color: #f44336;
+  color: #f44336;
+}
 .status-msg {
   text-align: center;
   padding: 60px 0;
@@ -153,9 +226,22 @@ onMounted(() => {
   border-radius: 8px;
   overflow: hidden;
   transition: box-shadow 0.2s;
+  display: flex;
+  flex-direction: column;
 }
 .product-card:hover {
   box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.card-tags {
+  margin-bottom: 4px;
+}
+.card-footer {
+  padding: 0 12px 10px;
 }
 .card-img {
   width: 100%;

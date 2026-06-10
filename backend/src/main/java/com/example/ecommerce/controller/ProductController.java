@@ -42,6 +42,7 @@ public class ProductController {
     public Result<Product> createProduct(@Valid @RequestBody ProductCreateRequest request) {
         Product product = new Product();
         product.setName(request.getName());
+        product.setCategory(request.getCategory());
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
         product.setImage(request.getImage());
@@ -53,6 +54,7 @@ public class ProductController {
      *
      * @param pageNum  页码
      * @param pageSize 每页条数
+     * @param category 分类筛选
      * @param keyword  搜索关键词
      * @return 分页结果
      */
@@ -61,8 +63,9 @@ public class ProductController {
     public Result<IPage<Product>> queryProducts(
             @RequestParam(defaultValue = "1") int pageNum,
             @RequestParam(defaultValue = "10") int pageSize,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) String keyword) {
-        return Result.success(productService.queryProducts(pageNum, pageSize, keyword));
+        return Result.success(productService.queryProducts(pageNum, pageSize, category, keyword));
     }
 
     /**
@@ -91,6 +94,7 @@ public class ProductController {
             @Valid @RequestBody ProductUpdateRequest request) {
         Product product = new Product();
         product.setName(request.getName());
+        product.setCategory(request.getCategory());
         product.setPrice(request.getPrice());
         product.setStock(request.getStock());
         product.setImage(request.getImage());

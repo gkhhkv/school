@@ -21,10 +21,11 @@ public interface ProductService {
      *
      * @param pageNum  页码
      * @param pageSize 每页条数
+     * @param category 分类筛选（可选）
      * @param keyword  搜索关键词（可选，匹配名称）
      * @return 分页结果
      */
-    IPage<Product> queryProducts(int pageNum, int pageSize, String keyword);
+    IPage<Product> queryProducts(int pageNum, int pageSize, String category, String keyword);
 
     /**
      * 根据 ID 查询商品。

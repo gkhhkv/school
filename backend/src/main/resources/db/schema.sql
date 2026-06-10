@@ -1,6 +1,13 @@
 -- 电商购物平台数据库建表脚本 (MySQL)
 -- 执行前请先创建数据库: CREATE DATABASE ecommerce DEFAULT CHARACTER SET utf8mb4;
 
+-- 按依赖逆序删除旧表，保证 schema 变更生效
+DROP TABLE IF EXISTS cart;
+DROP TABLE IF EXISTS order_item;
+DROP TABLE IF EXISTS `order`;
+DROP TABLE IF EXISTS product;
+DROP TABLE IF EXISTS `user`;
+
 -- 用户表
 CREATE TABLE IF NOT EXISTS `user` (
     user_id     BIGINT AUTO_INCREMENT PRIMARY KEY,
@@ -16,6 +23,9 @@ CREATE TABLE IF NOT EXISTS `user` (
 CREATE TABLE IF NOT EXISTS product (
     product_id  BIGINT AUTO_INCREMENT PRIMARY KEY,
     name        VARCHAR(200)   NOT NULL,
+    category    VARCHAR(50)    NOT NULL DEFAULT '',
+    promo_type  VARCHAR(20)    DEFAULT NULL,
+    promo_end_time DATETIME    DEFAULT NULL,
     price       DECIMAL(10,2)  NOT NULL,
     stock       INT            NOT NULL DEFAULT 0,
     image       VARCHAR(500)   DEFAULT NULL,

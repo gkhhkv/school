@@ -18,6 +18,9 @@ public class Product {
     @TableId(type = IdType.AUTO)
     private Long productId;
     private String name;
+    private String category;
+    private String promoType;
+    private LocalDateTime promoEndTime;
     private BigDecimal price;
     private Integer stock;
     private String image;

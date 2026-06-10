@@ -16,6 +16,9 @@ public class ProductCreateRequest {
     @NotBlank(message = "商品名称不能为空")
     private String name;
 
+    @NotBlank(message = "商品分类不能为空")
+    private String category;
+
     @NotNull(message = "商品单价不能为空")
     @Min(value = 0, message = "单价不能小于0")
     private BigDecimal price;

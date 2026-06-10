@@ -28,9 +28,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public IPage<Product> queryProducts(int pageNum, int pageSize, String keyword) {
+    public IPage<Product> queryProducts(int pageNum, int pageSize, String category, String keyword) {
         Page<Product> page = new Page<>(pageNum, pageSize);
         LambdaQueryWrapper<Product> wrapper = new LambdaQueryWrapper<>();
+        if (category != null && !category.isBlank()) {
+            wrapper.eq(Product::getCategory, category);
+        }
         if (keyword != null && !keyword.isBlank()) {
             wrapper.like(Product::getName, keyword);
         }
@@ -51,6 +54,7 @@ public class ProductServiceImpl implements ProductService {
     public Product updateProduct(Long productId, Product product) {
         Product existing = getProductById(productId);
         existing.setName(product.getName());
+        existing.setCategory(product.getCategory());
         existing.setPrice(product.getPrice());
         existing.setStock(product.getStock());
         existing.setImage(product.getImage());

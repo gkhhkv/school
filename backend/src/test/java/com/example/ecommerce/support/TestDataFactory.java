@@ -34,6 +34,7 @@ public final class TestDataFactory {
         Product product = new Product();
         product.setProductId(id);
         product.setName(name);
+        product.setCategory("数码");
         product.setPrice(BigDecimal.valueOf(price));
         product.setStock(stock);
         product.setImage("/img/p" + id + ".jpg");

@@ -45,15 +45,15 @@ class ProductServiceTest {
     void should_queryProductsWithPagination() {
         when(productMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
                 .thenReturn(new Page<>(1, 10));
-        var result = productService.queryProducts(1, 10, null);
+        var result = productService.queryProducts(1, 10, null, null);
         assertNotNull(result);
     }
 
     @Test
-    void should_queryProductsWithKeyword() {
+    void should_queryProductsWithCategory() {
         when(productMapper.selectPage(any(Page.class), any(LambdaQueryWrapper.class)))
                 .thenReturn(new Page<>(1, 10));
-        var result = productService.queryProducts(1, 10, "测试");
+        var result = productService.queryProducts(1, 10, "数码", null);
         assertNotNull(result);
     }
 
