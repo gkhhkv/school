@@ -43,7 +43,9 @@
             </div>
           </router-link>
           <div class="card-footer">
-            <button class="card-add-btn" @click="cart.addToCart(p)">加入购物车</button>
+            <button class="card-add-btn" :disabled="!p.stock" @click="addToCart(p)">
+              {{ p.stock ? '加入购物车' : '已售罄' }}
+            </button>
           </div>
         </div>
       </div>
@@ -113,6 +115,10 @@ function changeCategory(cat) {
   category.value = cat
   pageNum.value = 1
   fetchProducts()
+}
+
+async function addToCart(product) {
+  await cart.addToCart(product)
 }
 
 function doSearch() {
@@ -289,9 +295,15 @@ onMounted(() => {
   font-size: 13px;
   transition: all 0.2s;
 }
-.card-add-btn:hover {
+.card-add-btn:hover:not(:disabled) {
   background: #2196f3;
   color: #fff;
+}
+.card-add-btn:disabled {
+  border-color: #ccc;
+  color: #ccc;
+  cursor: not-allowed;
+  background: #f5f5f5;
 }
 .pagination {
   display: flex;

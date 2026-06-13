@@ -6,12 +6,18 @@
     <template v-else>
       <div class="cart-list">
         <div v-for="item in cart.items" :key="item.product.productId" class="cart-item">
-          <span class="item-name">{{ item.product.name }}</span>
+          <span class="item-name">
+            {{ item.product.name }}
+            <span class="item-stock">库存 {{ item.product.stock || 0 }} 件</span>
+          </span>
           <span class="item-price">¥{{ item.product.price }}</span>
           <div class="item-qty">
             <button @click="cart.updateQuantity(item.product.productId, item.quantity - 1)">-</button>
             <span>{{ item.quantity }}</span>
-            <button @click="cart.updateQuantity(item.product.productId, item.quantity + 1)">+</button>
+            <button
+              :disabled="item.quantity >= (item.product.stock || 0)"
+              @click="cart.updateQuantity(item.product.productId, item.quantity + 1)"
+            >+</button>
           </div>
           <span class="item-subtotal">¥{{ (Number(item.product.price) * item.quantity).toFixed(2) }}</span>
           <button class="btn-del" @click="cart.removeFromCart(item.product.productId)">删除</button>
@@ -188,9 +194,19 @@ h2 {
   cursor: pointer;
   font-size: 16px;
 }
-.item-qty button:hover {
+.item-qty button:hover:not(:disabled) {
   border-color: #2196f3;
   color: #2196f3;
+}
+.item-qty button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+.item-stock {
+  display: block;
+  font-size: 12px;
+  color: #999;
+  margin-top: 2px;
 }
 .item-subtotal {
   width: 90px;

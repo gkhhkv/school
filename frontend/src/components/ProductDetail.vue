@@ -14,6 +14,9 @@
         </div>
         <p class="product-desc">{{ product.description || '暂无描述' }}</p>
         <div class="product-price">¥{{ product.price }}</div>
+        <div class="stock-info">
+          库存：<span :class="{ 'low-stock': product.stock < 10 }">{{ product.stock || 0 }}</span> 件
+        </div>
         <div v-if="product.promoEndTime" class="promo-section">
           <span class="promo-title">距活动结束</span>
           <Countdown
@@ -21,7 +24,12 @@
             @expired="onPromoExpired"
           />
         </div>
-        <button class="add-cart-btn" @click="cart.addToCart(product)">加入购物车</button>
+        <button
+          class="add-cart-btn"
+          :disabled="!product.stock"
+          @click="handleAddCart"
+        >{{ product.stock ? '加入购物车' : '已售罄' }}</button>
+        <div v-if="cartMsg" :class="cartMsg.ok ? 'cart-msg-ok' : 'cart-msg-err'">{{ cartMsg.text }}</div>
       </div>
     </template>
   </div>
@@ -57,6 +65,16 @@ async function fetchProduct() {
   } finally {
     loading.value = false
   }
+}
+
+const cartMsg = ref(null)
+
+async function handleAddCart() {
+  const result = await cart.addToCart(product.value)
+  cartMsg.value = result.ok
+    ? { ok: true, text: '已加入购物车' }
+    : { ok: false, text: result.msg }
+  setTimeout(() => { cartMsg.value = null }, 2000)
 }
 
 function onPromoExpired() {
@@ -135,6 +153,15 @@ onMounted(() => {
   font-size: 14px;
   color: #666;
 }
+.stock-info {
+  font-size: 14px;
+  color: #666;
+  margin-bottom: 16px;
+}
+.low-stock {
+  color: #ff9800;
+  font-weight: 600;
+}
 .add-cart-btn {
   padding: 10px 32px;
   background: #ff4444;
@@ -145,7 +172,21 @@ onMounted(() => {
   font-weight: 600;
   cursor: pointer;
 }
-.add-cart-btn:hover {
+.add-cart-btn:hover:not(:disabled) {
   background: #d32f2f;
+}
+.add-cart-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+.cart-msg-ok {
+  margin-top: 10px;
+  color: #4caf50;
+  font-size: 13px;
+}
+.cart-msg-err {
+  margin-top: 10px;
+  color: #ff4444;
+  font-size: 13px;
 }
 </style>

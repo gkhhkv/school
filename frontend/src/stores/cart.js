@@ -71,13 +71,22 @@ export const useCartStore = defineStore('cart', () => {
   }
 
   async function addToCart(product) {
+    const stock = product.stock || 0
+    if (stock <= 0) {
+      return { ok: false, msg: '该商品已售罄' }
+    }
     const existing = items.value.find((item) => item.product.productId === product.productId)
+    const currentQty = existing ? existing.quantity : 0
+    if (currentQty >= stock) {
+      return { ok: false, msg: `库存不足，当前库存 ${stock} 件` }
+    }
     if (existing) {
       existing.quantity++
     } else {
       items.value.push({ product: { ...product }, quantity: 1 })
     }
     await syncToServer()
+    return { ok: true }
   }
 
   async function removeFromCart(productId) {
@@ -89,6 +98,8 @@ export const useCartStore = defineStore('cart', () => {
     if (quantity < 1) return
     const item = items.value.find((i) => i.product.productId === productId)
     if (item) {
+      const stock = item.product.stock || 0
+      if (quantity > stock) return
       item.quantity = quantity
       await syncToServer()
     }
